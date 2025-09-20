@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Abdulrehman’s Smart Chatbot</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #0f9d58, #f4c20d, #4285f4);
+      color: #fff;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .chat-container {
+      width: 450px;
+      background: #ffffff10;
+      border-radius: 20px;
+      padding: 20px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+      display: flex;
+      flex-direction: column;
+      height: 650px;
+    }
+
+    .logo {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      margin: 0 auto 10px;
+      background: radial-gradient(circle, #0f9d58, #f4c20d, #4285f4);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 22px;
+      font-weight: bold;
+      color: white;
+      text-shadow: 1px 1px 3px black;
+    }
+
+    h2 {
+      text-align: center;
+      margin: 10px 0 20px;
+      font-size: 20px;
+    }
+
+    .chat-box {
+      flex: 1;
+      background: #fff;
+      color: #000;
+      border-radius: 10px;
+      padding: 10px;
+      overflow-y: auto;
+      font-size: 14px;
+    }
+
+    .input-box {
+      display: flex;
+      margin-top: 10px;
+    }
+
+    .input-box input {
+      flex: 1;
+      padding: 10px;
+      border-radius: 10px;
+      border: none;
+      outline: none;
+    }
+
+    .input-box button {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 10px;
+      background: #4285f4;
+      color: white;
+      margin-left: 5px;
+      cursor: pointer;
+    }
+
+    .message {
+      margin: 8px 0;
+    }
+
+    .user {
+      text-align: right;
+      color: #0f9d58;
+    }
+
+    .bot {
+      text-align: left;
+      color: #4285f4;
+    }
+
+    .controls {
+      text-align: center;
+      margin-top: 8px;
+    }
+
+    .controls button {
+      background: #f4c20d;
+      color: #000;
+      border: none;
+      padding: 8px 12px;
+      margin: 3px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <div class="logo">🤖</div>
+    <h2>Abdulrehman’s Super Chatbot</h2>
+    <div class="chat-box" id="chatBox"></div>
+
+    <div class="input-box">
+      <input type="text" id="userInput" placeholder="Type a message...">
+      <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <div class="controls">
+      <button onclick="startListening()">🎤 Talk</button>
+      <button onclick="stopListening()">🛑 Stop</button>
+    </div>
+  </div>
+
+  <script>
+    const chatBox = document.getElementById("chatBox");
+
+    // Text-to-Speech
+    function speak(text) {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "en-US";
+      speechSynthesis.speak(utterance);
+    }
+
+    // Speech Recognition
+    let recognition;
+    if ('webkitSpeechRecognition' in window) {
+      recognition = new webkitSpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = false;
+      recognition.lang = "en-US";
+
+      recognition.onresult = function(event) {
+        const transcript = event.results[event.results.length - 1][0].transcript.trim();
+        addUserMessage(transcript);
+        setTimeout(() => botReply(transcript.toLowerCase()), 500);
+      };
+    }
+
+    function startListening() {
+      if (recognition) recognition.start();
+    }
+
+    function stopListening() {
+      if (recognition) recognition.stop();
+    }
+
+    // Add messages to chat
+    function addUserMessage(msg) {
+      const userMsg = document.createElement("div");
+      userMsg.classList.add("message", "user");
+      userMsg.textContent = msg;
+      chatBox.appendChild(userMsg);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function addBotMessage(msg) {
+      const botMsg = document.createElement("div");
+      botMsg.classList.add("message", "bot");
+      botMsg.textContent = msg;
+      chatBox.appendChild(botMsg);
+      chatBox.scrollTop = chatBox.scrollHeight;
+      speak(msg);
+    }
+
+    // Knowledge Base
+    const knowledgeBase = {
+      "who created you": "I was proudly created by Abdulrehman Saeed.",
+      "in which does abdulrehman studie": "Abdulrehman Saeed studies in Pakistan Education Academy, Grade 9AB.",
+      "tell me about science": "Science is the systematic study of the natural world through observation, experimentation, and reasoning...",
+      "tell me about math": "Mathematics is the science of numbers, patterns, shapes, and logical reasoning...",
+      "tell me about history": "History is the study of past events, people, cultures, and civilizations that have shaped the world...",
+      "tell me about sports": "Sports are physical activities and competitions that test strength, skill, strategy, and teamwork...",
+      "tell me about chemistry": "Chemistry is the study of substances, their properties, how they interact, and the energy changes involved.",
+      "tell me about physics": "Physics explores matter, energy, motion, and the forces that govern the universe.",
+      "tell me about biology": "Biology is the study of living organisms, including their structure, function, growth, and evolution.",
+      "tell me about geography": "Geography is the study of Earth’s landscapes, environments, and the relationships between people and their surroundings.",
+      "tell me about technology": "Technology is the application of scientific knowledge to solve problems and create useful tools, machines, and systems.",
+      "tell me about islam": "Islam is a monotheistic religion that teaches submission to Allah and following the teachings of the Prophet Muhammad (peace be upon him)."
+    };
+
+    // Fun Facts
+    const funFacts = [
+      "Did you know? The Eiffel Tower can grow up to 15 cm taller in summer because of heat expansion.",
+      "Bananas are berries, but strawberries are not.",
+      "Sharks existed before trees.",
+      "Honey never spoils; archaeologists found 3000-year-old honey still edible.",
+      "Octopuses have three hearts."
+    ];
+
+    function botReply(message) {
+      let reply = "";
+
+      // Check Knowledge Base
+      for (let key in knowledgeBase) {
+        if (message.includes(key)) {
+          reply = knowledgeBase[key];
+        }
+      }
+
+      // Math Solver
+      if (message.match(/(\d+)\s*[\+\-\*\/]\s*(\d+)/)) {
+        try {
+          reply = "Answer: " + eval(message);
+        } catch {
+          reply = "That math expression seems invalid.";
+        }
+      }
+
+      // Fun Facts
+      if (message.includes("fun fact")) {
+        reply = funFacts[Math.floor(Math.random() * funFacts.length)];
+      }
+
+      // Default Reply
+      if (!reply) {
+        reply = "I'm still learning like ChatGPT, but I’ll improve. Try asking me about science, history, math, or say 'fun fact'.";
+      }
+
+      addBotMessage(reply + " 🤖");
+    }
+
+    // Send message
+    function sendMessage() {
+      const input = document.getElementById("userInput");
+      const message = input.value.trim();
+      if (message === "") return;
+      addUserMessage(message);
+      input.value = "";
+      setTimeout(() => botReply(message.toLowerCase()), 500);
+    }
+  </script>
+</body>
+</html>
